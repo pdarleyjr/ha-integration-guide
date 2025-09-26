@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Home Assistant: Complete Integration Guide</title>
+<style>
+:root{
+  --bg:#0b1020;--card:#121a2f;--ink:#e7edf6;--muted:#a7b2c6;--accent:#70d7ff;--accent2:#8af0b0;
+  --code:#0d1117;--code-ink:#c9d1d9;--border:#233055;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,Segoe UI,Roboto,Helvetica,Arial,Apple Color Emoji,Segoe UI Emoji}
+a{color:var(--accent)}
+.container{max-width:980px;margin:0 auto;padding:28px}
+header{padding:8px 0 18px 0;border-bottom:1px solid var(--border);margin-bottom:18px}
+h1{font-size:32px;margin:0 0 10px}
+h2{font-size:22px;margin:24px 0 10px}
+h3{font-size:18px;margin:20px 0 8px;color:var(--accent2)}
+p,li{line-height:1.55;color:var(--ink)}
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;margin:14px 0}
+code,kbd{background:var(--code);color:var(--code-ink);padding:1px 5px;border-radius:6px}
+pre{background:var(--code);color:var(--code-ink);border-radius:12px;padding:14px;overflow:auto;border:1px solid #2a355d}
+.table{width:100%;border-collapse:collapse;border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.table th,.table td{border-bottom:1px solid var(--border);padding:10px;vertical-align:top}
+.table th{background:#0f1730;color:#b7c4de;text-align:left}
+.badge{display:inline-block;background:#112246;color:#9dd8ff;border:1px solid var(--border);border-radius:999px;padding:2px 10px;font-size:12px;margin-right:6px}
+footer{font-size:12px;color:var(--muted);margin:24px 0 8px}
+.toc a{display:block;padding:6px 0;color:#cfe7ff;text-decoration:none}
+.toc a:hover{text-decoration:underline}
+svg{max-width:100%;height:auto;display:block;margin:12px 0}
+small{color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>Home Assistant: Complete Integration Guide</h1>
+    <div><span class="badge">Linux mini‑PC</span><span class="badge">Local‑first</span><span class="badge">Camera AI & LLM</span></div>
+    <small>Last updated: 2025-09-26</small>
+  </header>
+
+  <div class="card toc">
+    <strong>Quick navigation</strong>
+    <a href="#arch">1. Architecture & Topology</a>
+    <a href="#core">2. Core Add‑ons</a>
+    <a href="#devices">3. Device Integrations</a>
+    <a href="#radios">4. Zigbee/Thread & Z‑Wave Radios</a>
+    <a href="#dash">5. Dashboards</a>
+    <a href="#ai">6. Automations & AI</a>
+    <a href="#face">7. Facial Recognition</a>
+    <a href="#alarmo">8. Alarmo Quick Start</a>
+    <a href="#remote">9. Backups & Remote Access</a>
+    <a href="#appendix">Appendix: Snippets & Links</a>
+  </div>
+
+  <section id="arch">
+    <h2>1. Architecture & Topology</h2>
+    <div class="card">
+      
+<svg viewBox="0 0 920 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Home network topology">
+  <defs>
+    <style>
+      .b{fill:#121a2f;stroke:#233055;stroke-width:1.5px;rx:10;ry:10}
+      .t{fill:#cfe7ff;font:14px/1.3 ui-sans-serif, -apple-system, Segoe UI, Roboto}
+      .t2{fill:#9dd8ff;font:12px/1.2 ui-sans-serif, -apple-system, Segoe UI, Roboto}
+      .line{stroke:#2f467c;stroke-width:1.5px}
+    </style>
+  </defs>
+  <rect x="20" y="20" width="160" height="40" class="b"/><text x="100" y="45" text-anchor="middle" class="t">Internet</text>
+  <rect x="200" y="20" width="190" height="40" class="b"/><text x="295" y="45" text-anchor="middle" class="t">Router</text>
+  <rect x="410" y="20" width="490" height="40" class="b"/><text x="655" y="45" text-anchor="middle" class="t">LAN (Switch + Wi‑Fi AP)</text>
+
+  <rect x="20" y="95" width="260" height="70" class="b"/><text x="150" y="120" text-anchor="middle" class="t">Mini‑PC</text>
+  <text x="150" y="140" text-anchor="middle" class="t2">Home Assistant + Mosquitto + Frigate + LLM</text>
+
+  <rect x="300" y="95" width="200" height="70" class="b"/><text x="400" y="120" text-anchor="middle" class="t">USB Radios</text>
+  <text x="400" y="140" text-anchor="middle" class="t2">Zigbee/Thread (ZBT‑1), Z‑Wave (optional)</text>
+
+  <rect x="520" y="95" width="190" height="70" class="b"/><text x="615" y="120" text-anchor="middle" class="t">SSD / NAS</text>
+  <text x="615" y="140" text-anchor="middle" class="t2">Frigate media + backups</text>
+
+  <rect x="725" y="95" width="175" height="70" class="b"/><text x="813" y="120" text-anchor="middle" class="t">Voice Assistants</text>
+  <text x="813" y="140" text-anchor="middle" class="t2">Echo / Show (TTS)</text>
+
+  <line x1="110" y1="60" x2="295" y2="60" class="line"/><line x1="295" y1="60" x2="655" y2="60" class="line"/>
+
+  <line x1="150" y1="95" x2="150" y2="60" class="line"/>
+  <line x1="400" y1="95" x2="400" y2="60" class="line"/>
+  <line x1="615" y1="95" x2="615" y2="60" class="line"/>
+  <line x1="813" y1="95" x2="813" y2="60" class="line"/>
+
+  <rect x="20" y="190" width="180" height="55" class="b"/><text x="110" y="220" text-anchor="middle" class="t">Bond Bridge</text>
+  <rect x="220" y="190" width="180" height="55" class="b"/><text x="310" y="220" text-anchor="middle" class="t">Govee Wi‑Fi</text>
+  <rect x="420" y="190" width="180" height="55" class="b"/><text x="510" y="210" text-anchor="middle" class="t">Tapo hub + TH</text>
+  <rect x="620" y="190" width="140" height="55" class="b"/><text x="690" y="220" text-anchor="middle" class="t">WiiM Amp</text>
+  <rect x="780" y="190" width="130" height="55" class="b"/><text x="845" y="210" text-anchor="middle" class="t">Zigbee sensors</text>
+  <text x="845" y="227" text-anchor="middle" class="t2">Aqara FP2 + DW</text>
+
+  <rect x="20" y="255" width="260" height="35" class="b"/><text x="150" y="278" text-anchor="middle" class="t">Ring (ring‑mqtt) → events/snapshots</text>
+  <rect x="300" y="255" width="300" height="35" class="b"/><text x="450" y="278" text-anchor="middle" class="t">Optional PoE cams (RTSP) → Frigate</text>
+</svg>
+
+      <p><strong>Notes.</strong> Keep everything local on the mini‑PC. Use Mosquitto as the event bus. Ring devices remain cloud/event‑based via <a href="https://github.com/tsightler/ring-mqtt">ring‑mqtt</a>; always‑on RTSP/ONVIF cameras (e.g., Reolink) feed <a href="https://docs.frigate.video/">Frigate</a> through <a href="https://docs.frigate.video/guides/configuring_go2rtc/">go2rtc</a>.</p>
+    </div>
+  </section>
+
+  <section id="core">
+    <h2>2. Core Add‑ons</h2>
+    <table class="table">
+      <tr><th>Add‑on / Component</th><th>Purpose</th><th>Docs</th></tr>
+      <tr><td>HACS</td><td>Community integrations &amp; cards</td><td><a href="https://hacs.xyz/docs/use/download/download/">hacs.xyz</a></td></tr>
+      <tr><td>Mosquitto MQTT Broker</td><td>MQTT for Frigate, ring‑mqtt, Double‑Take</td><td><a href="https://www.home-assistant.io/integrations/mqtt/">MQTT docs</a></td></tr>
+      <tr><td>Frigate NVR (+ go2rtc)</td><td>Local NVR + object detection (RTSP cams)</td><td><a href="https://docs.frigate.video/">docs.frigate.video</a></td></tr>
+      <tr><td>Alarmo (HACS)</td><td>Alarm panel/logic</td><td><a href="https://github.com/nielsfaber/alarmo">Alarmo</a></td></tr>
+      <tr><td>Home Assistant Google Drive Backup</td><td>Automated encrypted backups</td><td><a href="https://github.com/sabeechen/hassio-google-drive-backup">Backup add‑on</a></td></tr>
+    </table>
+  </section>
+
+  <section id="devices">
+    <h2>3. Device Integrations</h2>
+    <table class="table">
+      <tr><th>Device</th><th>How to integrate</th><th>Docs / Link</th></tr>
+      <tr><td>Alexa Media Player</td><td>Install via HACS; login to Amazon; enables Echo/Show TTS + actionable notifications.</td><td><a href="https://github.com/alandtse/alexa_media_player">Alexa Media Player</a></td></tr>
+      <tr><td>Ring</td><td>Add‑on: <strong>ring‑mqtt</strong>. Use events/snapshots and on‑demand live view (no 24×7 RTSP).</td><td><a href="https://github.com/tsightler/ring-mqtt">ring‑mqtt</a></td></tr>
+      <tr><td>Treatlife / Lumary (Tuya)</td><td>HACS: <strong>LocalTuya</strong> for local control of dimmers/switches.</td><td><a href="https://github.com/rospogrigio/localtuya">LocalTuya</a></td></tr>
+      <tr><td>Bond Bridge</td><td>Core integration for fans/shades.</td><td><a href="https://www.home-assistant.io/integrations/bond/">Bond</a></td></tr>
+      <tr><td>Govee lights + BLE sensors</td><td>Core <em>Govee Light Local</em> for Wi‑Fi lights; BLE thermometers via core.</td><td><a href="https://www.home-assistant.io/integrations/govee_light_local/">Govee Local</a></td></tr>
+      <tr><td>TP‑Link Tapo hub/sensors</td><td>Core <em>Tapo</em> for hub/sensors.</td><td><a href="https://www.home-assistant.io/integrations/tplink_tapo/">Tapo</a></td></tr>
+      <tr><td>Tapo cameras</td><td>HACS: <em>Tapo Cameras Control</em> for local RTSP/snapshots.</td><td><a href="https://github.com/JurajNyiri/HomeAssistant-Tapo-Control">Tapo Cameras Control</a></td></tr>
+      <tr><td>WiiM Amp</td><td>Core <em>LinkPlay</em> (DLNA fallback if needed).</td><td><a href="https://www.home-assistant.io/integrations/linkplay/">LinkPlay</a></td></tr>
+      <tr><td>Fire TV</td><td>Core <em>Android TV</em> or <em>Android TV Remote</em>.</td><td><a href="https://www.home-assistant.io/integrations/androidtv/">Android TV</a></td></tr>
+      <tr><td>Ecobee</td><td>Core <em>ecobee</em> or pair via HomeKit Device.</td><td><a href="https://www.home-assistant.io/integrations/ecobee/">Ecobee</a></td></tr>
+      <tr><td>Sleep Number</td><td>Core <em>SleepIQ</em>.</td><td><a href="https://www.home-assistant.io/integrations/sleepiq/">SleepIQ</a></td></tr>
+      <tr><td>Bambu Lab A1</td><td>HACS <em>ha‑bambulab</em>; enable LAN mode.</td><td><a href="https://github.com/greghesp/ha-bambulab">ha‑bambulab</a></td></tr>
+    </table>
+  </section>
+
+  <section id="radios">
+    <h2>4. Zigbee/Thread & Z‑Wave Radios</h2>
+    <table class="table">
+      <tr><th>Radio</th><th>Purpose</th><th>Docs</th></tr>
+      <tr><td>Home Assistant Connect ZBT‑1</td><td>Zigbee coordinator + Thread Border Router (ZHA/Z2M + Matter/Thread)</td><td><a href="https://www.home-assistant.io/connectzbt1/">ZBT‑1</a></td></tr>
+      <tr><td>Zooz ZST39 (800‑series) – optional</td><td>Z‑Wave USB stick (JS/Z‑Wave)</td><td><a href="https://www.getzooz.com/zooz-zst39-z-wave-long-range-usb-stick/">ZST39</a></td></tr>
+    </table>
+    <div class="card"><strong>Tip:</strong> Pair Aqara sensors via ZHA; FP2 presence via HomeKit Device. Add a few mains‑powered Zigbee plugs as repeaters for range.</div>
+  </section>
+
+  <section id="dash">
+    <h2>5. Dashboards</h2>
+    <div class="card">
+      <p>Build with <a href="https://github.com/piitaya/lovelace-mushroom">Mushroom</a> cards. Helpful extras: <a href="https://github.com/thomasloven/lovelace-auto-entities">Auto‑entities</a>, <a href="https://github.com/RomRider/apexcharts-card">ApexCharts</a>, <a href="https://github.com/custom-cards/button-card">Button‑card</a>.</p>
+      <p>Create tabs: <em>Home</em> • <em>Security</em> • <em>Cameras</em> • <em>Climate</em> • <em>Media</em> • <em>Printer</em>. Pin Alarmo and Frigate cards on Home.</p>
+    </div>
+  </section>
+
+  <section id="ai">
+    <h2>6. Automations &amp; AI (Frigate + MQTT + LLM)</h2>
+    <h3>Frigate with go2rtc (example)</h3>
+    <pre><code># frigate.yml
+mqtt:
+  host: 127.0.0.1
+  user: mqtt
+  password: YOUR_PASS
+go2rtc:
+  streams:
+    porch_main: rtsp://USER:PASS@192.168.1.120:554/h264Preview_01_main
+cameras:
+  porch:
+    ffmpeg:
+      inputs:
+        - path: rtsp://USER:PASS@192.168.1.120:554/h264Preview_01_sub
+          roles: [detect]
+        - path: rtsp://USER:PASS@192.168.1.120:554/h264Preview_01_main
+          roles: [record, audio, rtmp]
+    detect:
+      width: 640
+      height: 360
+      fps: 5
+    objects:
+      track: [person, vehicle, dog, cat]</code></pre>
+
+    <h3>Ring → LLM summary → mobile push</h3>
+    <pre><code>alias: Door Person → LLM Summary Notification
+trigger:
+  - platform: mqtt
+    topic: ring/&lt;device_id&gt;/ding   # event from ring-mqtt
+action:
+  - service: camera.snapshot
+    target: {{ entity_id: camera.ring_front_last_motion }}
+    data: {{ filename: /config/www/snapshots/front_last.jpg }}
+  - service: rest_command.llm_caption
+    data: {{ image_url: "https://YOUR_HA_URL/local/snapshots/front_last.jpg" }}
+  - service: notify.mobile_app_your_phone
+    data:
+      title: Front Door
+      message: "{{ states('sensor.llm_last_caption') }}"
+      data: {{ image: "https://YOUR_HA_URL/local/snapshots/front_last.jpg" }}</code></pre>
+
+    <h3>Alexa announcement (TTS)</h3>
+    <pre><code>service: notify.alexa_media_living_room_echo
+data:
+  message: "Person detected at the front door."
+  data:
+    type: announce
+    method: speak</code></pre>
+  </section>
+
+  <section id="face">
+    <h2>7. Facial Recognition</h2>
+    <div class="card">
+      
+<svg viewBox="0 0 920 120" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Face recognition pipeline">
+  <defs>
+    <style>
+      .b{fill:#121a2f;stroke:#233055;stroke-width:1.5px;rx:10;ry:10}
+      .t{fill:#cfe7ff;font:14px/1.3 ui-sans-serif, -apple-system, Segoe UI, Roboto}
+      .line{stroke:#2f467c;stroke-width:1.5px;marker-end:url(#a)}
+    </style>
+    <marker id="a" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#2f467c" />
+    </marker>
+  </defs>
+  <rect x="20" y="25" width="200" height="60" class="b"/><text x="120" y="60" text-anchor="middle" class="t">Frigate (person)</text>
+  <rect x="260" y="25" width="220" height="60" class="b"/><text x="370" y="60" text-anchor="middle" class="t">Double‑Take (router)</text>
+  <rect x="520" y="25" width="230" height="60" class="b"/><text x="635" y="52" text-anchor="middle" class="t">CompreFace or</text><text x="635" y="70" text-anchor="middle" class="t">CodeProject.AI</text>
+  <rect x="780" y="25" width="120" height="60" class="b"/><text x="840" y="60" text-anchor="middle" class="t">MQTT → HA</text>
+
+  <line x1="220" y1="55" x2="260" y2="55" class="line"/>
+  <line x1="480" y1="55" x2="520" y2="55" class="line"/>
+  <line x1="750" y1="55" x2="780" y2="55" class="line"/>
+</svg>
+
+      <p>Install <a href="https://github.com/jakowenko/double-take">Double‑Take</a> and point it at a face engine (<a href="https://github.com/exadel-inc/CompreFace">CompreFace</a> or <a href="https://www.codeproject.com/AI">CodeProject.AI</a>). Wire it to Frigate snapshots and publish recognition results via MQTT to HA.</p>
+    </div>
+  </section>
+
+  <section id="alarmo">
+    <h2>8. Alarmo Quick Start</h2>
+    <pre><code># configuration.yaml (minimal Alarmo example)
+alarmo:
+  enable_mqtt: true
+
+# Example binary_sensors mapped to Alarmo via UI:
+# - binary_sensor.kitchen_door_contact (Aqara T1)
+# - binary_sensor.living_motion (Aqara P1)
+# - binary_sensor.living_presence (Aqara FP2 zone1)
+
+# Example arming helpers:
+input_boolean.night_mode
+
+# Automation: Arm at night if all doors closed
+alias: Arm Night when doors closed
+trigger:
+  - platform: state
+    entity_id: input_boolean.night_mode
+    to: "on"
+action:
+  - service: alarmo.arm
+    data: {{ entity_id: alarm_control_panel.alarmo, mode: night }}</code></pre>
+  </section>
+
+  <section id="remote">
+    <h2>9. Backups & Remote Access</h2>
+    <ul>
+      <li><a href="https://github.com/sabeechen/hassio-google-drive-backup">Home Assistant Google Drive Backup</a> — snapshots & encryption.</li>
+      <li><a href="https://tailscale.com/kb/1218/home-assistant/">Tailscale</a> — simple secure remote access.</li>
+      <li><a href="https://www.nabucasa.com/">Nabu Casa</a> — easiest remote URL + voice assistants (paid).</li>
+    </ul>
+  </section>
+
+  <section id="appendix">
+    <h2>Appendix: Snippets & Links</h2>
+    <h3>ring‑mqtt add‑on options (example)</h3>
+    <pre><code>{{
+  "mqtt": {{"host":"127.0.0.1","port":1883,"tls":false,"username":"mqtt","password":"YOUR_PASS"}},
+  "livestream_user":"ha",
+  "livestream_pass":"STRONG_PASSWORD",
+  "output":"auto",
+  "enable_vod": true
+}}</code></pre>
+
+    <h3>Quick links</h3>
+    <ul>
+      <li><a href="https://hacs.xyz/docs/use/download/download/">HACS (install)</a></li>
+      <li><a href="https://github.com/alandtse/alexa_media_player">Alexa Media Player</a></li>
+      <li><a href="https://github.com/tsightler/ring-mqtt-ha-addon">ring‑mqtt add‑on</a> • <a href="https://github.com/tsightler/ring-mqtt/wiki/Frequently-Asked-Questions-%28FAQ%29">FAQ</a></li>
+      <li><a href="https://github.com/rospogrigio/localtuya">LocalTuya</a></li>
+      <li><a href="https://www.home-assistant.io/integrations/bond/">Bond</a></li>
+      <li><a href="https://www.home-assistant.io/integrations/govee_light_local/">Govee Local</a></li>
+      <li><a href="https://www.home-assistant.io/integrations/tplink_tapo/">TP‑Link Tapo</a> • <a href="https://github.com/JurajNyiri/HomeAssistant-Tapo-Control">Tapo Cameras Control</a></li>
+      <li><a href="https://www.home-assistant.io/integrations/linkplay/">LinkPlay (WiiM)</a></li>
+      <li><a href="https://www.home-assistant.io/integrations/androidtv/">Android TV</a></li>
+      <li><a href="https://www.home-assistant.io/integrations/ecobee/">Ecobee</a> • <a href="https://www.home-assistant.io/integrations/sleepiq/">SleepIQ</a></li>
+      <li><a href="https://github.com/greghesp/ha-bambulab">Bambu Lab (HACS)</a></li>
+      <li><a href="https://www.home-assistant.io/connectzbt1/">Home Assistant Connect ZBT‑1</a> • <a href="https://www.getzooz.com/zooz-zst39-z-wave-long-range-usb-stick/">Zooz ZST39</a></li>
+      <li><a href="https://docs.frigate.video/integrations/home-assistant/">Frigate ↔ HA</a> • <a href="https://docs.frigate.video/guides/configuring_go2rtc/">go2rtc guide</a></li>
+      <li><a href="https://github.com/jakowenko/double-take">Double‑Take</a> • <a href="https://github.com/exadel-inc/CompreFace">CompreFace</a> • <a href="https://www.codeproject.com/AI">CodeProject.AI</a></li>
+    </ul>
+  </section>
+
+  <footer>© 2025 HA Integration Guide • Single‑file HTML for easy sharing</footer>
+</div>
+</body>
+</html>
